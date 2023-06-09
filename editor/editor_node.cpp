@@ -6664,6 +6664,8 @@ int EditorNode::execute_and_show_output(const String &p_title, const String &p_p
 
 	eta.execute_output_thread.start(_execute_thread, &eta);
 
+	print_line("\nGradle Build Started:\n");
+
 	while (!eta.done.is_set()) {
 		{
 			MutexLock lock(eta.execute_output_mutex);
@@ -6671,6 +6673,7 @@ int EditorNode::execute_and_show_output(const String &p_title, const String &p_p
 				String to_add = eta.output.substr(prev_len, eta.output.length());
 				prev_len = eta.output.length();
 				execute_outputs->add_text(to_add);
+				print_line(to_add);
 				DisplayServer::get_singleton()->process_events(); // Get rid of pending events.
 				Main::iteration();
 			}
@@ -6680,6 +6683,7 @@ int EditorNode::execute_and_show_output(const String &p_title, const String &p_p
 
 	eta.execute_output_thread.wait_to_finish();
 	execute_outputs->add_text("\nExit Code: " + itos(eta.exitcode));
+	print_line("\nExit Code: " + itos(eta.exitcode) + "\n");
 
 	if (execute_output_dialog) {
 		if (p_close_on_errors && eta.exitcode != 0) {
